@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -64,12 +65,20 @@ namespace BitcoinService
                 }
             }
 
+            string bitcoindPath = ConfigurationManager.AppSettings["bitcoindPath"];
+
+            if (string.IsNullOrEmpty(bitcoindPath))
+			{
+                trace.TraceEvent(TraceEventType.Error, 1003, "Config: bitcoindPath is not set or is empty.");
+                return;
+			}
+
             trace.TraceEvent(TraceEventType.Information, 1002, "BitcoinService Main");
             string mainArgs = string.Join(" ", args);
             trace.TraceEvent(TraceEventType.Verbose, 0, string.Format("MainArgs: '{0}'", mainArgs));
             var servicesToRun = new ServiceBase[]
             {
-                new BitcoinService() {
+                new BitcoinService(bitcoindPath) {
                     MainArgs = mainArgs
                 }
             };
